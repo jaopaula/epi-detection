@@ -1,71 +1,89 @@
-# EPI Hardhat Detector
 
-Real-time detection of PPE (capacete/hardhat) via webcam using a pretrained YOLO model. Includes optional fine-tuning pipeline focused on color invariance so helmets of any color are detected reliably.
 
-## Features
-- Real-time webcam detection with bounding boxes and labels
-- Uses Ultralytics YOLOv8/YOLOv5 pretrained weights
-- Fine-tuning script with color jitter/grayscale augmentation to promote color invariance
-- Simple dataset folder structure and config
+# EPI Detection
 
-## Quick start
-Recommended: Python 3.10 or 3.11 on Windows for prebuilt wheels. Python 3.13 may try to compile NumPy from source and fail without Visual Studio C++ Build Tools.
+Detecção de Equipamentos de Proteção Individual (EPI) em tempo real usando YOLOv8 e Python. Este projeto detecta capacetes, óculos e outros EPIs em imagens, vídeos ou webcam, com suporte para treinamento personalizado.
 
-1. Create a virtual environment and install dependencies
-2. Run the webcam app
+## Funcionalidades
+- Detecção em tempo real via webcam, imagem ou vídeo
+- Treinamento e ajuste fino com seu próprio conjunto de dados
+- Estrutura pronta para adicionar novos tipos de EPI
 
-```powershell
-# 1) Create venv (use Python 3.11 if available)
-py -3.11 -m venv .venv; .\.venv\Scripts\Activate.ps1
+## Como usar
 
-# 2) Upgrade pip and install deps
-python -m pip install --upgrade pip
+### 1. Clonar o repositório
+```bash
+git clone https://github.com/jaopaula/epi-detection.git
+cd epi-detection
+```
+
+### 2. Instalar dependências
+Recomenda-se usar um ambiente virtual:
+```bash
+python -m venv .venv
+.venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-
-# 3) Run webcam detector
-python app.py
-
-# Optional: run on an image file and save result
-python app.py --source .\data\images\sample.jpg --save --out .\outputs\result.jpg
-
-# Optional: run on a video file
-python app.py --source .\data\videos\sample.mp4
 ```
 
-Press `Q` to quit.
+### 3. Preparar o dataset
+O projeto já possui a estrutura de pastas em `data/`, mas está vazia. Siga os passos abaixo para baixar/preparar os dados:
+- Baixe um conjunto de dados de EPI (exemplo: capacetes, óculos) ou use o script de conversão para VOC/YOLO se necessário
+- Coloque as imagens e labels nas pastas:
+  - `data/images/train/` e `data/images/val/`
+  - `data/labels/train/` e `data/labels/val/`
+- Ajuste o arquivo `data/dataset.yaml` conforme seu conjunto de dados
 
-## Training (optional)
-If you have a dataset with `hardhat` labels, you can fine-tune to improve color invariance.
+### 4. Treinar o modelo
+```bash
+python scripts/train.py --data data/dataset.yaml --epochs 50 --batch 16 --img 640 --weights yolov8n.pt --project runs/train --name hardhat-color-invariant
+```
+O modelo treinado será salvo em `runs/train/hardhat-color-invariant/weights/best.pt`.
 
-```powershell
-# Activate env
-.\.venv\Scripts\Activate.ps1
-
-# Train
-python scripts\train.py --data data\dataset.yaml --epochs 50 --batch 16 --img 640 --weights yolov8n.pt
+### 5. Rodar a detecção
+Para usar a webcam:
+```bash
+python app.py --weights runs/train/hardhat-color-invariant/weights/best.pt --source 0
+```
+Para testar com uma imagem:
+```bash
+python app.py --weights runs/train/hardhat-color-invariant/weights/best.pt --source caminho/da/imagem.jpg
 ```
 
-The training script applies strong color augmentations including grayscale probability to enforce invariance.
-
-## Dataset structure
+## Estrutura do projeto
 ```
-data/
-  dataset.yaml          # YOLO data config
-  images/
-    train/
-    val/
-  labels/
-    train/
-    val/
+├── app.py                # Detecção em tempo real
+├── scripts/train.py      # Treinamento do modelo
+├── data/                 # Estrutura de dados (imagens/labels)
+│   ├── images/
+│   │   ├── train/
+│   │   └── val/
+│   └── labels/
+│       ├── train/
+│       └── val/
+├── requirements.txt      # Dependências
+├── .gitignore            # Arquivos/pastas ignorados
+└── README.md             # Este guia
 ```
 
-`dataset.yaml` example is provided and assumes a single class `hardhat`.
+## Observações
+- O conjunto de dados e os modelos treinados não são enviados ao GitHub para manter o repositório leve.
+- Siga o README para preparar os dados e treinar o modelo.
+- Para adicionar novos tipos de EPI, basta ajustar o conjunto de dados e o arquivo `dataset.yaml`.
 
-## Notes
-- Requires a working webcam.
-- Tested with Python 3.10/3.11.
-- If you prefer CPU only, it will still run but slower.
- - For best results, fine-tune a model to the `hardhat` class and provide it via `--weights path/to/hardhat.pt`.
+## Contribuição
+Pull requests são bem-vindos! Sinta-se à vontade para abrir issues ou sugerir melhorias.
 
-### Troubleshooting
-- If installation fails on NumPy with Python 3.13, prefer Python 3.11 (py -3.11) or install the Microsoft C++ Build Tools and ensure a compatible NumPy wheel is available.
+## Licença
+Este projeto é open-source sob a licença MIT.
+
+Um exemplo de `dataset.yaml` é fornecido e assume uma única classe: `hardhat` (capacete).
+
+
+## Observações técnicas
+- Requer uma webcam funcional para detecção em tempo real.
+- Testado com Python 3.10/3.11.
+- Se preferir rodar apenas na CPU, o sistema funcionará, porém será mais lento.
+- Para melhores resultados, faça o ajuste fino (fine-tuning) do modelo para a classe `hardhat` e forneça o caminho do modelo treinado via `--weights caminho/para/hardhat.pt`.
+
+### Solução de problemas
+- Se a instalação falhar no NumPy usando Python 3.13, prefira Python 3.11 (`py -3.11`) ou instale o Microsoft C++ Build Tools e garanta que uma versão compatível do NumPy esteja disponível.
