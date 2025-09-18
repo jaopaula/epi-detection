@@ -1,6 +1,4 @@
-train: C:/Programs/epi-project/data/images/train
-val: C:/Programs/epi-project/data/images/val
-nc: 1
-names: [helmet]
+train: data/images/train
+val: data/images/val
 nc: 1
 names: [helmet]
