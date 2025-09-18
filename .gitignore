@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Data & runs
+data/images/train/*
+data/images/val/*
+data/labels/train/*
+data/labels/val/*
+runs/
+weights/
+runs/
+weights/
+
+# OS
+.DS_Store
+Thumbs.db

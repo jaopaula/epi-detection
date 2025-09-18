@@ -1,0 +1,6 @@
+train: C:/Programs/epi-project/data/images/train
+val: C:/Programs/epi-project/data/images/val
+nc: 1
+names: [helmet]
+nc: 1
+names: [helmet]
