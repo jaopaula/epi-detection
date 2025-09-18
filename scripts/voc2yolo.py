@@ -3,22 +3,30 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 import shutil
 from tqdm import tqdm
+import argparse
 
-# CONFIG
-VOC_ANNOTATIONS_DIR = 'data/original/annotations'  # Pasta de anotações VOC (XML)
-IMAGES_DIR = 'data/original/images'                # Pasta de imagens originais
-OUTPUT_DIR = 'data'                                # Pasta destino para YOLO
-TRAIN_SPLIT = 0.85
+def parse_args():
+    parser = argparse.ArgumentParser(description="Converte VOC para YOLO para múltiplos EPIs")
+    parser.add_argument('--epi', type=str, nargs='+', required=True, help="Lista de EPIs (ex: helmet glasses)")
+    parser.add_argument('--split', type=float, default=0.85, help="Proporção para treino")
+    parser.add_argument('--output', type=str, default='data', help="Pasta destino para YOLO")
+    return parser.parse_args()
 
-# Classes do dataset
-CLASSES = ['helmet']  # Adicione outras se quiser
+args = parse_args()
+VOC_ANNOTATIONS_DIRS = [f'data/original/{epi}/annotations' for epi in args.epi]
+IMAGES_DIRS = [f'data/original/{epi}/images' for epi in args.epi]
+OUTPUT_DIR = args.output
+TRAIN_SPLIT = args.split
+CLASSES = args.epi  # Lista de EPIs
 
 # Cria pastas destino
 for sub in ['images/train', 'images/val', 'labels/train', 'labels/val']:
     Path(f'{OUTPUT_DIR}/{sub}').mkdir(parents=True, exist_ok=True)
 
 # Lista todos XMLs
-xml_files = list(Path(VOC_ANNOTATIONS_DIR).glob('*.xml'))
+xml_files = []
+for voc_dir in VOC_ANNOTATIONS_DIRS:
+    xml_files.extend(list(Path(voc_dir).glob('*.xml')))
 
 # Split train/val
 split_idx = int(len(xml_files) * TRAIN_SPLIT)
@@ -44,7 +52,16 @@ def process_xml(xml_path, img_dst, lbl_dst):
     tree = ET.parse(xml_path)
     root = tree.getroot()
     img_file = root.find('filename').text
-    img_src = Path(IMAGES_DIR) / img_file
+    # Descobre de qual pasta de imagens vem esse arquivo
+    img_src = None
+    for img_dir in IMAGES_DIRS:
+        candidate = Path(img_dir) / img_file
+        if candidate.exists():
+            img_src = candidate
+            break
+    if img_src is None:
+        print(f"Imagem {img_file} não encontrada em nenhuma pasta de EPIs.")
+        return
     shutil.copy2(img_src, img_dst)
     size = root.find('size')
     w = int(size.find('width').text)
@@ -52,13 +69,14 @@ def process_xml(xml_path, img_dst, lbl_dst):
     lines = []
     for obj in root.findall('object'):
         cls = obj.find('name').text
-        if cls != 'helmet':
+        if cls not in CLASSES:
             continue
+        class_idx = CLASSES.index(cls)
         xmlbox = obj.find('bndbox')
         b = [float(xmlbox.find('xmin').text), float(xmlbox.find('xmax').text),
              float(xmlbox.find('ymin').text), float(xmlbox.find('ymax').text)]
         bbox = convert_bbox((w, h), b)
-        lines.append(f"0 {' '.join(f'{v:.6f}' for v in bbox)}")
+        lines.append(f"{class_idx} {' '.join(f'{v:.6f}' for v in bbox)}")
     with open(lbl_dst, 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines))
 
@@ -77,7 +95,7 @@ for xml_path in tqdm(val_xmls, desc='Processando validação'):
     process_xml(xml_path, img_dst, lbl_dst)
 
 # Gera dataset.yaml
-yaml_path = Path(OUTPUT_DIR) / 'dataset.yaml'
+yaml_path = Path(OUTPUT_DIR) / f"dataset_{'_'.join(CLASSES)}.yaml"
 with open(yaml_path, 'w', encoding='utf-8') as f:
-    f.write(f"""path: ../data\ntrain: images/train\nval: images/val\nnc: 1\nnames: [helmet]\n""")
+    f.write(f"""path: ../data\ntrain: images/train\nval: images/val\nnc: {len(CLASSES)}\nnames: {CLASSES}\n""")
 print(f"\nConversão VOC->YOLO concluída! Arquivo dataset.yaml gerado em {yaml_path}")

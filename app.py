@@ -136,6 +136,7 @@ def main():
     prev_time = time.time()
     fps = 0.0
 
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -168,6 +169,7 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
+# ...existing code...
 
 
 if __name__ == '__main__':
