@@ -1,8 +1,12 @@
-# Ignorar dados originais do dataset
-data/original/images/*
-!data/original/images/.gitkeep
-data/original/annotations/*
-!data/original/annotations/.gitkeep
+# Ignorar dados originais de cada EPI
+data/original/helmet/images/*
+!data/original/helmet/images/.gitkeep
+data/original/helmet/annotations/*
+!data/original/helmet/annotations/.gitkeep
+data/original/glasses/images/*
+!data/original/glasses/images/.gitkeep
+data/original/glasses/annotations/*
+!data/original/glasses/annotations/.gitkeep
 # Python
 __pycache__/
 *.pyc
