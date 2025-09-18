@@ -4,10 +4,22 @@ import shutil
 from pathlib import Path
 from tqdm import tqdm
 
-# CONFIG: ajuste conforme necessário
-COCO_ANNOTATION_PATH = r'C:\Users\evosystem04.ti\.cache\kagglehub\datasets\andrewmvd\hard-hat-detection\versions\1\annotations\train.json'  # Caminho para o arquivo COCO
-IMAGES_DIR = r'C:\Users\evosystem04.ti\.cache\kagglehub\datasets\andrewmvd\hard-hat-detection\versions\1\images'  # Pasta com imagens originais
-OUTPUT_DIR = "../data"  # Pasta destino para YOLO
+
+# CONFIGURAÇÃO: ATENÇÃO!
+# Antes de rodar este script, ajuste os caminhos abaixo conforme o local onde você baixou o dataset do Kaggle.
+# Exemplo de download: https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection
+#
+# COCO_ANNOTATION_PATH: caminho para o arquivo train.json das anotações
+# IMAGES_DIR: pasta onde estão as imagens originais
+# OUTPUT_DIR: pasta destino para o dataset convertido (recomenda-se manter 'data')
+#
+# Exemplo:
+# COCO_ANNOTATION_PATH = r'C:/Users/seu_usuario/.cache/kagglehub/datasets/andrewmvd/hard-hat-detection/versions/1/annotations/train.json'
+# IMAGES_DIR = r'C:/Users/seu_usuario/.cache/kagglehub/datasets/andrewmvd/hard-hat-detection/versions/1/images'
+
+COCO_ANNOTATION_PATH = r'C:/Users/evosystem04.ti/.cache/kagglehub/datasets/andrewmvd/hard-hat-detection/versions/1/annotations/train.json'  # Caminho para o arquivo COCO
+IMAGES_DIR = r'C:/Users/evosystem04.ti/.cache/kagglehub/datasets/andrewmvd/hard-hat-detection/versions/1/images'  # Pasta com imagens originais
+OUTPUT_DIR = "data"  # Pasta destino para YOLO (relativo à raiz do projeto)
 TRAIN_SPLIT = 0.85  # Proporção para treino
 
 # Classes do dataset Kaggle
