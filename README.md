@@ -25,13 +25,28 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 3. Preparar o dataset
-O projeto já possui a estrutura de pastas em `data/`, mas está vazia. Siga os passos abaixo para baixar/preparar os dados:
-- Baixe um conjunto de dados de EPI (exemplo: capacetes, óculos) ou use o script de conversão para VOC/YOLO se necessário
-- Coloque as imagens e labels nas pastas:
+
+O projeto já possui a estrutura de pastas em `data/`, mas está vazia. Siga os passos abaixo para baixar e preparar os dados:
+
+#### 3.1 Baixar o dataset de EPI
+- Dataset utilizado: [Hard Hat Detection - Kaggle](https://www.kaggle.com/datasets/andrewmvd/hard-hat-detection)
+- Faça login no Kaggle e baixe o arquivo ZIP do dataset.
+- Extraia o conteúdo em uma pasta de sua preferência.
+
+#### 3.2 Converter o dataset para YOLO
+- O dataset vem em formato COCO (JSON) e VOC (XML). Para usar com YOLOv8, converta usando o script do projeto:
+
+```bash
+python scripts/coco2yolo.py
+```
+- Antes de rodar, ajuste os caminhos no início do script `coco2yolo.py` para apontar para o local onde você extraiu o dataset.
+- O script irá criar as pastas `data/images/train`, `data/images/val`, `data/labels/train`, `data/labels/val` e gerar o arquivo `data/dataset.yaml`.
+
+#### 3.3 Conferir estrutura final
+- Após a conversão, as imagens e labels estarão organizadas nas pastas corretas:
   - `data/images/train/` e `data/images/val/`
   - `data/labels/train/` e `data/labels/val/`
-- Ajuste o arquivo `data/dataset.yaml` conforme seu conjunto de dados
+- O arquivo `data/dataset.yaml` estará pronto para uso.
 
 ### 4. Treinar o modelo
 ```bash

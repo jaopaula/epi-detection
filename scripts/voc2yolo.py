@@ -5,9 +5,9 @@ import shutil
 from tqdm import tqdm
 
 # CONFIG
-VOC_ANNOTATIONS_DIR = r'C:\Users\evosystem04.ti\.cache\kagglehub\datasets\andrewmvd\hard-hat-detection\versions\1\annotations'
-IMAGES_DIR = r'C:\Users\evosystem04.ti\.cache\kagglehub\datasets\andrewmvd\hard-hat-detection\versions\1\images'
-OUTPUT_DIR = r'c:\Programs\epi-project\data'
+VOC_ANNOTATIONS_DIR = 'data/original/annotations'  # Pasta de anotações VOC (XML)
+IMAGES_DIR = 'data/original/images'                # Pasta de imagens originais
+OUTPUT_DIR = 'data'                                # Pasta destino para YOLO
 TRAIN_SPLIT = 0.85
 
 # Classes do dataset
